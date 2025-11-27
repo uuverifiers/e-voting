@@ -1,0 +1,123 @@
+syntax = "proto3";
+option go_package = "e-voting-service/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+package wahlServices;
+
+service wahlServices {
+  // Authentication mit Wahltoken:
+  rpc GetVotertokenStatus (google.protobuf.Empty) returns (GetVotertokenStatusResponse);
+  rpc GetElectionForVoter (google.protobuf.Empty) returns (getElectionResponse);
+  rpc SendVote (SendVoteRequest) returns (google.protobuf.Empty);
+
+  rpc RegisterWahlleiter (RegisterRequest) returns (CheckAnmeldungResponse);
+  rpc CheckAnmeldung (CheckAnmeldungRequest) returns (CheckAnmeldungResponse);
+  
+  // Authentication mit Wahlleiter mit Bearer token:
+  rpc CreateElection (CreateElectionRequest) returns (WahlTokens);
+  rpc Abmelden (google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc CheckToken (google.protobuf.Empty) returns (CheckTokenResponse);
+  rpc GetElectionsOfWahlleiter (google.protobuf.Empty) returns (GetElectionsOfWahlleiterResponse);
+
+  // Authentication Wahlleiter oder Wahltoken
+  rpc GetResult (GetResultRequest) returns (GetResultResponse);
+}
+
+message GetVotertokenStatusResponse {
+  bool tokenExists = 1;
+  bool tokenUnused = 2;
+}
+
+message CreateElectionRequest {
+  ElectionCreationData electionCreationData = 1;
+}
+message getElectionResponse {
+  Election election = 1;
+  repeated Candidate candidates = 2;
+}
+
+message UnifiedVotingVote {
+  int32 candidate_id = 1;
+  int32 wahl_info = 2; 
+}
+
+message SendVoteRequest {
+  repeated UnifiedVotingVote votes = 1;
+}
+message CheckAnmeldungRequest {
+  string username = 1;
+  string password = 2;
+}
+message CheckAnmeldungResponse {
+  string auth_bearer_token = 1;
+}
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+  string email = 3;
+}
+
+enum ElectionType {
+  ELECTION_TYPE_UNSPECIFIED = 0;
+  APPROVAL_VOTING = 1;
+  COMBINED_APPROVAL_VOTING = 2;
+  SCORE_VOTING = 3;
+  IRV = 4;
+  MAJORITY = 5;
+}
+
+message ElectionCreationData {
+  string name = 1;
+  string beschreibung = 2;
+  repeated string candidates = 3;
+  google.protobuf.Timestamp end_time = 4;
+  ElectionType election_type = 5;
+  repeated string voter_emails = 6;
+  string password = 7;
+  bool is_open = 8;
+}
+
+
+message CheckTokenResponse {
+  bool is_valid = 1;
+}
+
+message GetElectionsOfWahlleiterResponse {
+  repeated Election elections = 1;
+}
+
+// Election as in database:
+message Election {
+  int32 id = 1;
+  string name = 2;
+  string beschreibung = 3;
+  int32 wahlleiterid = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp end_time = 6;
+  ElectionType type = 7;
+  bool is_active = 8;
+}
+
+// Candidate as in database:
+message Candidate {
+  int32 id = 1;
+  int32 election_id = 2;
+  string name = 3;
+}
+
+
+message WahlTokens {
+  repeated string tokens = 1;
+}
+
+message GetResultRequest {
+  int32 election_id = 1;
+}
+
+message GetResultResponse {
+  repeated Candidate candidates = 1; // *alle* Candidaten, keine bestimme sortierung
+  map<int32, int32> meta_info = 2;   // Meta info, z.B. Anzahl der Approvals/Stimmen pro Kandidat
+  repeated Candidate winner = 3;    // Gewinner der Wahl, ggfs mehrere
+}
