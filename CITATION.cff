@@ -1,0 +1,48 @@
+cff-version: "1.2.0"
+message: "If you use this software, please cite it as below."
+authors:
+- given-names: "Robert"
+  family-names: "Büttner"
+  affiliation: "University of Regensburg"
+
+- given-names: "Fabian Franz"
+  family-names: "Dießl"
+  affiliation: "University of Regensburg"
+ 
+- given-names: "Patrick"
+  family-names: "Janoschek"
+  affiliation: "University of Regensburg"
+
+- given-names: "Ivana"
+  family-names: "Kostadinovic"
+  affiliation: "University of Regensburg"
+
+- given-names: "Henrik"
+  family-names: "Oback"
+  affiliation: "University of Regensburg"
+
+- given-names: "Kilian"
+  family-names: "Voß"
+  affiliation: "University of Regensburg"
+
+- given-names: "Franziska"
+  family-names: "Alber"
+  affiliation: "University of Regensburg"
+ 
+- given-names: "Roland"
+  family-names: "Herrmann"
+  affiliation: "University of Regensburg"
+ 
+- given-names: "Sibylle"
+  family-names: "Möhle"
+  affiliation: "University of Regensburg"
+ 
+- given-names: "Philipp"
+  family-names: "Rümmer"
+  affiliation: "University of Regensburg"
+ 
+
+title: "Verification of E-Voting Algorithms in Dafny"
+version: "1.0.0"
+date-released: 2025-11-26
+url: "https://github.com/uuverifiers/e-voting"
