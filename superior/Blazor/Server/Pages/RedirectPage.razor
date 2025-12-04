@@ -1,0 +1,177 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/vote/{Token}"
+@page "/result/{Token}"
+
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+@using E_Voting.Transfer
+
+<PageTitle>Redirect</PageTitle>
+
+@code {
+    [Parameter]
+    public string? Token { get; set; }
+
+    private Election? election;
+    private Voter? voter;
+
+    protected override void OnInitialized()
+    {
+        // empty token
+        if (string.IsNullOrEmpty(Token))
+        {
+            NavManager.NavigateTo(Routes.InvalidToken);
+            return;
+        }
+
+        // public election
+        if (Token.All(char.IsDigit) && long.TryParse(Token, out long id))
+        {
+            // election ID as token => public vote
+            election = Database.GetElection(id, true, PrivacyLevel.Public);
+            if (election != null && election.PublicElection)
+            {
+                VotingSystem system = Help.GetVotingSystem(election.TypeID);
+                Redirect(system, election.ID, "public");
+            }
+            else
+            {
+                election = null;
+                NavManager.NavigateTo(Routes.InvalidToken);
+            }
+            return;
+        }
+
+        // admin or voter?
+        if (Token.Length != Config.VoterTokenLength && Token.Length != Config.AdminTokenLength)
+        {
+            NavManager.NavigateTo(Routes.InvalidToken);
+            return;
+        }
+        // only can see results with admin token
+        if (Token.Length == Config.AdminTokenLength && !ResultRequest())
+        {
+            NavManager.NavigateTo(Routes.InvalidToken);
+            return;
+        }
+
+        // election result redirect for admin
+        if (Token.Length == Config.AdminTokenLength)
+        {
+            election = Database.CheckAdminToken(Token);
+            if (election != null)
+            {
+                VotingSystem system = Help.GetVotingSystem(election.TypeID);
+                Redirect(system, election.ID, Token);
+                return;
+            }
+            else
+            {
+                NavManager.NavigateTo(Routes.InvalidToken);
+                return;
+            }
+        }
+
+        // private vote
+        if (Token.Length == Config.VoterTokenLength)
+        {
+            voter = Database.CheckToken(Token);
+            if (voter != null)
+            {
+                election = Database.GetElection(voter.ElectionID, true, PrivacyLevel.Voters);
+                if (election != null)
+                {
+                    VotingSystem system = Help.GetVotingSystem(election.TypeID);
+                    Redirect(system, election.ID, Token);
+                    return;
+                }
+                else
+                {
+                    NavManager.NavigateTo(Routes.InvalidToken);
+                    return;
+                }
+            }
+            else
+            {
+                NavManager.NavigateTo(Routes.InvalidToken);
+                return;
+            }
+        }
+    }
+
+    private void Redirect(VotingSystem system, long electionID, string token)
+    {
+        string path = "";
+        if (VoteRequest())
+        {
+            path = "vote";
+        }
+        if (ResultRequest())
+        {
+            path = "result";
+        }
+        if(path == "")
+        {
+            NavManager.NavigateTo(Routes.InvalidRequest);
+            return;
+        }
+
+        string option = "";
+        if(system == VotingSystem.Borda_count)
+        {
+            if (path == "vote")
+            {
+                option = "pref-list";
+            }
+            if (path == "result")
+            {
+                option = "list";
+            }
+        }
+        if (system == VotingSystem.Single_transferable_vote)
+        {
+            if (path == "vote")
+            {
+                option = "pref-list";
+            }
+            if (path == "result")
+            {
+                option = "set";
+            }
+        }
+        if (option == "")
+        {
+            NavManager.NavigateTo(Routes.ServerError);
+            return;
+        }
+
+        string route = path + "/" + option + "?electionId=" + electionID + "&token=" + token;
+        NavManager.NavigateTo(route, replace: true);
+    }
+
+    private bool VoteRequest()
+    {
+        string relative = NavManager.ToBaseRelativePath(NavManager.Uri);
+        return relative.StartsWith("vote/");
+    }
+
+    private bool ResultRequest()
+    {
+        string relative = NavManager.ToBaseRelativePath(NavManager.Uri);
+        return relative.StartsWith("result/");
+    }
+}

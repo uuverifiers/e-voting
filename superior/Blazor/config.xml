@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+  <enableLogging>true</enableLogging>
+  <voterTokenLength>30</voterTokenLength>
+  <adminTokenLength>25</adminTokenLength>
+  <fullDomain>http://localhost:50052/superior</fullDomain>
+  <domain>localhost</domain>
+  <emptyResult>none</emptyResult>
+  <intervalls>
+    <evaluationInterval>60</evaluationInterval>                 <!-- Unit: Seconds -->
+    <cleanerInterval>3600</cleanerInterval>                     <!-- Unit: Seconds -->
+    <reminderInterval>3600</reminderInterval>                   <!-- Unit: Seconds -->
+  </intervalls>
+  <thresholds>
+    <electionCleanerThreshold>90</electionCleanerThreshold>     <!-- Unit: Days -->
+    <logCleanerThreshold>7</logCleanerThreshold>                <!-- Unit: Days -->
+    <reminderDaysBefore>3</reminderDaysBefore>                  <!-- Unit: Days -->
+  </thresholds>
+  <database>
+    <host>localhost</host>
+    <port>3306</port>
+    <username>your_user</username>
+    <password>your_password</password>
+    <name>your_db</name>
+  </database>
+  <algorithms>
+    <bordaCountMaxTieBreakers>10</bordaCountMaxTieBreakers>
+    <stvMaxSeats>100</stvMaxSeats>
+  </algorithms>
+  <mail>
+    <smtpServer>your_server</smtpServer>
+    <smtpPort>25</smtpPort>
+    <enableSSL>False</enableSSL>
+    <smtpEmail>account@mail.com</smtpEmail>
+    <smtpPassword>1234</smtpPassword>
+  </mail>
+  <contact>
+    <hostName>Somebody</hostName>
+    <hostAddress>Somewhere</hostAddress>
+    <hostMail>Somemail</hostMail>
+    <complaintLink>https://www.SomeAuthority.com</complaintLink>
+  </contact>
+</config>

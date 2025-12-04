@@ -1,0 +1,187 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/legal"
+
+<PageTitle>Legal Notice</PageTitle>
+
+<!-- Header -->
+<div class="logo-header-div">
+    <h1>
+        Legal Notice - Impressum
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" />
+</div>
+
+<div class="main-page-div">
+    <!-- Legal Notice / Impressum -->
+    <h2>Anbieter</h2>
+    <ul>
+        <li><strong>Name:</strong> @name</li>
+        <li><strong>Adresse:</strong> @address</li>
+        <li><strong>E-Mail:</strong> @mail</li>
+    </ul>
+
+    <br>
+    <br>
+
+    <!-- Privacy Policy -->
+    <h2>I. Informationen über die Verarbeitung Ihrer Daten gemäß Art. 13 der Datenschutz-Grundverordnung (DS-GVO)</h2>
+    <br>
+
+    <h3>1. Verantwortlicher</h3>
+    <ul>
+        <li><strong>Name:</strong> @name</li>
+        <li><strong>Adresse:</strong> @address</li>
+        <li><strong>E-Mail:</strong> @mail</li>
+    </ul>
+    <br>
+
+    <h3>2. Daten, die für die Bereitstellung der Website und die Erstellung der Protokolldateien verarbeitet werden</h3>
+    <br>
+
+    <h4>a. Welche Daten werden für welchen Zweck verarbeitet?</h4>
+    <p>Bei jedem Zugriff auf Inhalte der Website werden vorübergehend Daten gespeichert, die möglicherweise eine Identifizierung zulassen. Die folgenden Daten werden hierbei erhoben:</p>
+    <ul>
+        <li>Datum und Uhrzeit des Zugriffs</li>
+        <li>IP-Adresse</li>
+        <li>Hostname des zugreifenden Rechners</li>
+        <li>Website, von der aus die Website aufgerufen wurde</li>
+        <li>Websites, die über die Website aufgerufen werden</li>
+        <li>Besuchte Seite auf unserer Website</li>
+        <li>Meldung, ob der Abruf erfolgreich war</li>
+        <li>Übertragene Datenmenge</li>
+        <li>Informationen über den Browsertyp und die verwendete Version</li>
+        <li>Betriebssystem</li>
+    </ul>
+    <p>Die vorübergehende Speicherung der Daten ist für den Ablauf eines Websitebesuchs erforderlich, um eine Auslieferung der Website zu ermöglichen. 
+    Eine weitere Speicherung in Protokolldateien erfolgt, um die Funktionsfähigkeit der Website und die Sicherheit der informationstechnischen Systeme sicherzustellen. 
+    In diesen Zwecken liegt auch unser berechtigtes Interesse an der Datenverarbeitung.</p>
+    <br>
+
+    <h4>b. Auf welcher Rechtsgrundlage werden diese Daten verarbeitet?</h4>
+    <p>Die Daten werden auf der Grundlage des Art. 6 Abs. 1 Buchstabe f DS-GVO verarbeitet.</p>
+    <br>
+
+    <h4>c. Wie lange werden die Daten gespeichert?</h4>
+    <p>
+        Die Daten werden gelöscht, sobald sie für die Erreichung des Zwecks ihrer Erhebung nicht mehr erforderlich sind.
+        Bei der Bereitstellung der Website ist dies der Fall, wenn die jeweilige Sitzung beendet ist.
+        Die Protokolldateien werden maximal bis zu @logThreshold Tage direkt und ausschließlich für Administratoren zugänglich aufbewahrt.
+        Darüber hinaus können sie im Rahmen von Server-Backups beim Hosting-Anbieter verbleiben; auf diese Backups haben wir keinen direkten Einfluss.
+        Der Hosting-Anbieter verarbeitet personenbezogene Daten in diesem Zusammenhang ausschließlich in unserem Auftrag als Auftragsverarbeiter.
+        Personenbezogene Daten in den Logs werden ausschließlich zum Betrieb und zur Fehleranalyse der Website verwendet.
+    </p>
+    <br>
+
+    <h3>3. Betroffenenrechte</h3>
+    <ul>
+        <li><strong>a. Recht auf Auskunft:</strong> Sie können Auskunft nach Art. 15 DS-GVO über Ihre personenbezogenen Daten verlangen, die wir verarbeiten.</li>
+        <li><strong>b. Recht auf Widerspruch:</strong> Sie haben ein Recht auf Widerspruch aus besonderen Gründen (siehe Punkt II).</li>
+        <li><strong>c. Recht auf Berichtigung:</strong> Sollten die Sie betreffenden Angaben nicht (mehr) zutreffend sein, können Sie nach Art. 16 DS-GVO eine Berichtigung verlangen. Sollten Ihre Daten unvollständig sein, können Sie eine Vervollständigung verlangen.</li>
+        <li><strong>d. Recht auf Löschung:</strong> Sie können nach Art. 17 DS-GVO die Löschung Ihrer personenbezogenen Daten verlangen.</li>
+        <li><strong>e. Recht auf Einschränkung der Verarbeitung:</strong> Sie haben nach Art. 18 DS-GVO das Recht, eine Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen.</li>
+        <li>
+            <strong>f. Recht auf Beschwerde:</strong> Wenn Sie der Ansicht sind, dass die Verarbeitung Ihrer personenbezogenen Daten gegen Datenschutzrecht verstößt, haben Sie nach Ar. 77 Abs. 1 DS-GVO das Recht, sich bei einer Datenschutzaufsichtsbehörde eigener Wahl zu beschweren. Hierzu gehört auch die für den Verantwortlichen zuständige Datenschutzaufsichtsbehörde:
+            <a href="@link">Beschwerdeformular</a>.
+        </li>
+        <li><strong>g. Recht auf Datenübertragbarkeit:</strong> Für den Fall, dass die Voraussetzungen des Art. 20 Abs. 1 DS-GVO vorliegen, steht Ihnen das Recht zu, sich Daten, die wir auf Grundlage Ihrer Einwilligung oder in Erfüllung eines Vertrags automatisiert verarbeiten, an sich oder an Dritte aushändigen zu lassen. Die Erfassung der Daten zur Bereitstellung der Website und die Speicherung der Protokolldateien sind für den Betrieb der Internetseite zwingend erforderlich. Sie beruhen daher nicht auf einer Einwilligung nach Art. 6 Abs. 1 Buchstabe a DS-GVO oder auf einem Vertrag nach Art. 6 Abs. 1 Buchstabe b DS-GVO, sondern sind nach Art. 6 Abs. 1 Buchstabe f DS-GVO gerechtfertigt. Die Voraussetzungen des Art. 20 Abs. 1 DS-GVO sind demnach insoweit nicht erfüllt.</li>
+    </ul>
+    <br>
+
+    <h3>4. Cookies</h3>
+    <p>
+        Auf unserer Website werden ausschließlich technisch notwendige Cookies eingesetzt,
+        die für den Betrieb und die Bereitstellung der Wahlfunktionen erforderlich sind.
+        Eine Einwilligung ist hierfür nicht erforderlich.
+        Es findet kein Tracking statt.
+    </p>
+    <br>
+
+    <h3>5. Verarbeitung der Wahldaten</h3>
+    <p>
+        Für die Durchführung von Online-Wahlen werden ausschließlich die Daten verarbeitet,
+        die für den Versand von Abstimmungslinks und die Durchführung der Wahl erforderlich sind.
+        Hierzu gehören:
+    </p>
+    <ul>
+        <li>E-Mail-Adressen der Wahladministratoren</li>
+        <li>E-Mail-Adressen der eingeladenen Wählerinnen und Wähler</li>
+    </ul>
+    <p>
+        Die E-Mail-Adressen der Wählerinnen und Wähler werden nur genutzt, um den individuellen Wahl-Link zu
+        versenden und um sicherzustellen, dass jede Person nur einmal abstimmen kann.
+        Die abgegebenen Stimmen werden vollständig anonym verarbeitet und können keiner Person
+        zugeordnet werden.
+    </p>
+    <p>
+        Rechtsgrundlage der Verarbeitung ist Art. 6 Abs. 1 lit. b und lit. f DS-GVO.
+        Die Daten werden nach Abschluss der Wahl gelöscht oder anonymisiert.
+        Eine Weitergabe an Dritte erfolgt nicht.
+        Eine Ausnahme besteht nur für unseren Hosting-Provider,
+        der die Daten ausschließlich in unserem Auftrag gemäß Art. 28 DS-GVO verarbeitet.
+    </p>
+    <p> 
+        Für die Durchführung der Wahl werden zusätzlich der vom Wahladministrator eingegebene Wahlname sowie die Wahlbeschreibung verarbeitet. 
+        Diese Inhalte werden ausschließlich zur Bereitstellung der Wahlfunktion gespeichert. 
+        Der Wahladministrator ist selbst dafür verantwortlich, keine personenbezogenen Daten in diesen freien Textfeldern zu hinterlegen. 
+        Eine automatische Prüfung oder Filterung solcher Inhalte findet nicht statt. 
+    </p>
+    <p>
+        Bei der Erstellung einer Wahl können vom Wahladministrator Kandidatennamen oder andere frei
+        wählbare Bezeichnungen eingegeben werden. Diese Angaben werden ausschließlich zur Durchführung
+        der Wahl gespeichert. Der Wahladministrator ist selbst verantwortlich dafür, keine
+        personenbezogenen Daten in diesen Feldern zu verwenden. Eine automatische Prüfung oder
+        Filterung solcher Inhalte findet nicht statt.
+    </p>
+    <p>
+        Alle im Zusammenhang mit einer Wahl gespeicherten Daten (z.&nbsp;B. Wahlname, Beschreibung,
+        Kandidatennamen, abgegebene Stimmen, E-Mail-Adressen von Wahladministrator und E-Mail-Adressen eingeladener
+        Wählerinnen und Wählern) werden spätestens @electionThreshold Tage nach Ende der Wahl
+        endgültig gelöscht. Bitte beachten Sie, dass Kopien dieser Daten für einen begrenzten Zeitraum in automatischen
+        Server-Backups des Hosting-Providers verbleiben können. Auf diese Backup-Systeme haben wir
+        keinen direkten Einfluss; der Provider verarbeitet diese Daten ausschließlich als
+        Auftragsverarbeiter gemäß Art. 28 DS-GVO.
+    </p>
+    <br>
+
+    <h3>II. Recht auf Widerspruch gemäß Art. 21 Abs. 1 DS-GVO</h3>
+    <p>
+        Sie haben das Recht, aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit gegen die Verarbeitung Ihrer personenbezogenen Daten, die aufgrund von Artikel 6 Abs. 1 Buchstabe f DS-GVO erfolgt, Widerspruch einzulegen. 
+        Der Verantwortliche verarbeitet die personenbezogenen Daten dann nicht mehr, es sei denn, er kann zwingende schutzwürdige Gründe für die Verarbeitung nachweisen, die die Interessen, Rechte und Freiheiten der betroffenen Person überwiegen, oder die Verarbeitung dient der Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen. 
+        Die Erfassung der Daten zur Bereitstellung der Website und die Speicherung der Protokolldateien sind für den Betrieb der Internetseite zwingend erforderlich.
+    </p>
+
+</div>
+
+@code
+{
+    private string name = "N/A";
+    private string address = "N/A";
+    private string mail = "N/A";
+    private string link = "N/A";
+    private string logThreshold = "N/A";
+    private string electionThreshold = "N/A";
+
+    protected override void OnInitialized()
+    {
+        name = Config.HostName;
+        address = Config.HostAddress;
+        mail = Config.HostMail;
+        link = Config.ComplaintLink;
+        logThreshold = Config.LogCleanerThreshold.ToString();
+        electionThreshold = Config.ElectionCleanerThreshold.ToString();
+    }
+}

@@ -1,0 +1,388 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@using E_Voting.Transfer
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+@implements IDisposable
+@page "/admin/{Token}"
+
+<PageTitle>Admin</PageTitle>
+
+@if(election == null)
+{
+    return;
+}
+@if (election.End < DateTime.UtcNow || election.Result != Config.EmptyResult)
+{
+    return;
+}
+
+<h1>
+    Election Admin
+</h1>
+<br>
+<br />
+
+<h3>Progress</h3>
+@if(election.PublicElection)
+{
+    @if(totalVoted != 1)
+    {
+        <p>@totalVoted voters have cast their votes</p>
+    }
+    else
+    {
+        <p>@totalVoted voter has cast their vote</p>
+    }
+}
+else
+{
+    <p>@percentVoted% of voters have cast their vote</p>
+}
+@if (browserTimeZone != String.Empty)
+{
+    <p>End time: @election.End.AddHours(browserTimeZoneOffset).ToString("dd.MM.yyyy HH:mm") (@browserTimeZone)</p>
+}
+else
+{
+    <p>⠀</p> <!-- watch out, invisible char (U+2800) -->
+}
+<br>
+<br />
+
+@if (election.Voters.Any())
+{
+    <h3>Voters</h3>
+    <ul class="list-main">
+        @foreach (Voter voter in election.Voters)
+        {
+            <li>
+                @if(mobile)
+                {
+                    @Help.CutSize(voter.Mail, 20)
+                }
+                else
+                {
+                    @Help.CutSize(voter.Mail, 40)
+                }
+                <button @onclick="() => SendMailAgain(voter)" class="btn-main">Send again</button>
+            </li>
+        }
+    </ul>
+    <button @onclick="SendAllMailsAgain" class="btn-main">Send all mails again</button>
+    <br>
+    <br />
+    <br>
+    <br />
+}
+
+<h3>Name</h3>
+<div>
+    <input class="input-main" @bind="newName" />
+    <button class="btn-main" @onclick="UpdateElectionName">Update</button>
+</div>
+<br>
+<br />
+
+<h3>Description</h3>
+<div>
+    <input class="input-main" @bind="newDescription"/>
+    <button class="btn-main" @onclick="UpdateElectionDescription">Update</button>
+</div>
+<br>
+<br />
+
+<div style="border: 4px solid red; padding: 20px; border-radius: 8px; max-width: 255px;">
+    <h3 style="color: red; font-weight: bold;">DANGER ZONE</h3>
+    <button class="btn-main" @onclick="GetResult" style="margin-bottom: 10px;">
+        Get results now
+    </button>
+    <button class="btn-main" @onclick="DeleteElection">
+        Delete election
+    </button>
+</div>
+<br>
+<br />
+
+@if(election!.PublicElection)
+{
+    <h3>QR Code for Election</h3>
+    <div style="height:400px;">
+        @qrCode
+    </div>
+    <br>
+    <br />
+}
+
+
+@code {
+    [Parameter]
+    public string? Token { get; set; }
+
+    private MarkupString qrCode;
+    private Election? election;
+    private string newDescription = "";
+    private string newName = "";
+    private string voteUrl = "";
+    private int percentVoted;
+    private int totalVoted;
+    private string browserTimeZone = String.Empty;
+    private int browserTimeZoneOffset = 0;
+    private Timer? refreshTimer;
+    private bool mobile = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            browserTimeZone = await JS.InvokeAsync<string>("getBrowserTimeZone");
+            browserTimeZoneOffset = await JS.InvokeAsync<int>("getBrowserUtcOffset");
+            int browserWidth = await JS.InvokeAsync<int>("browserUtils.getWindowWidth");
+            mobile = browserWidth < 800;
+
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        LoadElection();
+
+        if(election != null)
+        {
+            newDescription = election.Description;
+            newName = election.Name;
+            LoadData();
+
+            // setup a timer to refresh data every 10 seconds
+            refreshTimer = new Timer(async _ =>
+            {
+                await InvokeAsync(() =>
+                {
+                    LoadElection();
+                    if(election != null)
+                    {
+                        LoadData();   
+                    }
+                    StateHasChanged();
+                });
+            }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+        }
+    }
+
+    public void Dispose()
+    {
+        // stop and clean up timer when leaving the page
+        refreshTimer?.Dispose();
+    }
+
+    private void LoadElection()
+    {
+        if(string.IsNullOrEmpty(Token))
+        {
+            NavManager.NavigateTo(Routes.InvalidToken);
+            return;
+        }
+        if(Token.Length == Config.VoterTokenLength)
+        {
+            NavManager.NavigateTo(Routes.WrongToken);
+            return;
+        }
+
+        election = Database.CheckAdminToken(Token);
+        if(election == null)
+        {
+            NavManager.NavigateTo(Routes.InvalidToken);
+            return;
+        }
+        if(election.End < DateTime.UtcNow || election.Result != Config.EmptyResult)
+        {
+            NavManager.NavigateTo("result/" + Token);
+            return;
+        }
+    }
+
+    private void LoadData()
+    {
+        if(!election!.PublicElection)
+        {
+            double voted = 0;
+            double total = election.Voters.Count;
+            foreach (Voter voter in election.Voters)
+            {
+                if (voter.Voted)
+                {
+                    voted++;
+                }
+            }
+            if (total > 0)
+            {
+                percentVoted = (int)((voted / total) * 100);
+            }
+            else
+            {
+                percentVoted = 100;
+            }
+        }
+        else
+        {
+            totalVoted = election.Votes.Count;
+
+            voteUrl = Config.FullDomain + "/vote/" + election.ID;
+            string data = Help.GenerateQrCodeSvg(voteUrl);
+            qrCode = (MarkupString)data;
+        }
+    }
+
+    private void SendAllMailsAgain()
+    {
+        LoadElection();
+        if(election == null)
+        {
+            return;
+        }
+
+        Mail.SendVoterInvitations(election);
+    }
+
+    private void SendMailAgain(Voter voter)
+    {
+        LoadElection();
+        if (election == null)
+        {
+            return;
+        }
+
+        Mail.SendVoterInvitation(election, voter);
+    }
+
+    private async Task GetResult()
+    {
+        if(election == null)
+        {
+            NavManager.NavigateTo(Routes.ServerError);
+            return;
+        }
+
+        bool confirmed = false;
+        try
+        {
+            confirmed = await JS.InvokeAsync<bool>("confirm", "Do you really want to end the election early?");
+        }
+        catch(Exception e)
+        {
+            confirmed = true;
+        }
+
+        if (confirmed)
+        {
+            LoadElection();
+
+            string result = DafnyWrapper.GetResultNow(election);
+            if(result == DafnyWrapper.FaultyResult)
+            {
+                NavManager.NavigateTo(Routes.FaultyElection);
+                return;
+            }
+            if(result == DafnyWrapper.NoVotes)
+            {
+                NavManager.NavigateTo(Routes.NoVotes);
+                return;
+            }
+            if(result == DafnyWrapper.ErrorInDB)
+            {
+                await Help.DisplayDatabaseError(JS);
+                return;
+            }
+
+            if (election.PublicElection)
+            {
+                NavManager.NavigateTo($"result/" + election.ID);
+            }
+            else
+            {
+                NavManager.NavigateTo($"home");
+            }
+        }
+    }
+
+    private async Task UpdateElectionName()
+    {
+        bool confirmed = false;
+        try
+        {
+            confirmed = await JS.InvokeAsync<bool>("confirm", "Do you really want to update the name?");
+        }
+        catch(Exception e)
+        {
+            confirmed = true;
+        }
+
+        if (confirmed)
+        {
+            if (!Database.UpdateElectionName(election!.ID, newName))
+            {
+                await Help.DisplayDatabaseError(JS);
+            }
+        }
+    }
+
+    private async Task UpdateElectionDescription()
+    {
+        bool confirmed = false;
+        try
+        {
+            confirmed = await JS.InvokeAsync<bool>("confirm", "Do you really want to update the description?");
+        }
+        catch(Exception e)
+        {
+            confirmed = true;
+        }
+
+        if (confirmed)
+        {
+            if (!Database.UpdateElectionDescription(election!.ID, newDescription))
+            {
+                await Help.DisplayDatabaseError(JS);
+            }
+        }
+    }
+
+    private async Task DeleteElection()
+    {
+        bool confirmed = false;
+        try
+        {
+            confirmed = await JS.InvokeAsync<bool>("confirm", "Do you really want to delete this election?");
+        }
+        catch(Exception e)
+        {
+            confirmed = true;
+        }
+
+        if (confirmed)
+        {
+            if (Database.DeleteElection(election!.ID))
+            {
+                NavManager.NavigateTo("home");
+            }
+            else
+            {
+                await Help.DisplayDatabaseError(JS);
+            }
+        }
+    }
+}

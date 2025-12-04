@@ -1,0 +1,131 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@using E_Voting.Transfer
+@using Microsoft.AspNetCore.Components.Authorization
+@page "/public"
+
+<PageTitle>Public</PageTitle>
+
+<div class="logo-header-div">
+    <h1>
+        Public Elections
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" />
+</div>
+
+<div class="listing-div">
+    <select class="select-main" @bind="visibility" style="flex: 1;">
+        <option value="all">Show all elections</option>
+        <option value="open">Only show open elections</option>
+        <option value="closed">Only show closed elections</option>
+    </select>
+    <ul class="list-main">
+        <p>Search by name</p>
+        <input class="input-main" style="margin-bottom: 30px;" @oninput="Search" />
+        @foreach (Election election in elections)
+        {
+            @if(visibility == "open" && Closed(election))
+            {
+                continue;
+            }
+            @if (visibility == "closed" && !Closed(election))
+            {
+                continue;
+            }
+            <li>
+                @if (!Closed(election))
+                {
+                    <a class="btn-link-main"
+                       style="display:inline-block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                       href="@($"vote/{election.ID}")">
+                       @election.Name - @GetStatus(election)
+                    </a>
+                }
+                else
+                {
+                    <a class="btn-link-main"
+                       style="display:inline-block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                       href="@($"result/{election.ID}")">
+                       @election.Name - @GetStatus(election)
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    private List<Election> elections = new List<Election>();
+    private string visibility = "all";
+    private string searchTerm = "";
+    private Timer? refreshTimer;
+
+    protected override void OnInitialized()
+    {
+        Load();
+
+        // setup a timer to refresh data every 10 seconds
+        refreshTimer = new Timer(async _ =>
+        {
+            await InvokeAsync(() =>
+            {
+                Load();
+                StateHasChanged();
+            });
+        }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+    }
+
+    private bool Closed(Election election)
+    {
+        return election.Result != Config.EmptyResult || election.End < DateTime.UtcNow;
+    }
+
+    private string GetStatus(Election election)
+    {
+        if (!Closed(election))
+        {
+            return "[OPEN] until " + election.End.ToString("dd.MM.yyyy HH:mm");
+        }
+        else
+        {
+            return "[CLOSED]";
+        }
+    }
+
+    private void Search(ChangeEventArgs e)
+    {
+        if (e.Value == null)
+        {
+            return;
+        }
+
+        searchTerm = e.Value.ToString()!;
+        Load();
+    }
+
+    private void Load()
+    {
+        elections = Database.GetPublicElections(true);
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            elections = elections.Where(e => e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).OrderBy(e => e.Name).ToList();
+        }
+        else
+        {
+            elections = elections.OrderBy(e => e.Name).ToList();
+        }
+    }
+}

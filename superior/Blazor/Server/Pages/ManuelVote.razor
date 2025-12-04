@@ -1,0 +1,75 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/insert"
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+@using E_Voting.Transfer
+
+<PageTitle>Insert</PageTitle>
+
+<h1>
+    Go to Voting Page
+</h1>
+<br>
+<br />
+
+<p>You can insert your token here!</p>
+<input class="input-main" @bind="token" />
+<br>
+<br />
+
+<button class="btn-main" @onclick="Redirect">Submit</button>
+
+@code {
+    private string token = "";
+
+    private void Redirect()
+    {
+        if(string.IsNullOrEmpty(token))
+        {
+            NavManager.NavigateTo(Routes.InvalidToken);
+            return;
+        }
+        if (token.Length == Config.AdminTokenLength)
+        {
+            NavManager.NavigateTo(Routes.WrongToken);
+            return;
+        }
+
+        Voter? voter = Database.CheckToken(token);
+        if(voter == null)
+        {
+            NavManager.NavigateTo(Routes.InvalidToken);
+            return;
+        }
+
+        Election? election = Database.GetElection(voter.ElectionID, true, PrivacyLevel.Voters);
+        if(election == null)
+        {
+            NavManager.NavigateTo(Routes.ServerError);
+            return;
+        }
+
+        if(election.Result == Config.EmptyResult)
+        {
+            NavManager.NavigateTo($"vote/" + token);
+        }
+        else
+        {
+            NavManager.NavigateTo($"result/" + token);
+        }
+    }
+}

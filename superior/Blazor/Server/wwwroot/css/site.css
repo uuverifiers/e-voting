@@ -1,0 +1,300 @@
+/*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*/
+
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: #e9e9e9;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center; 
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.listing-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.main-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #333333;
+}
+
+.checkbox-container h5 {
+    margin: 0; 
+    font-weight: normal;
+}
+
+.main-page-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    max-width: 800px;
+    width: 100%;
+    padding: 2rem 1rem;
+    line-height: 1.6;
+    color: #333;
+    margin: 0 auto;
+}
+
+    .main-page-div br {
+        content: "";
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .main-page-div h1 {
+        align-self: flex-start;
+        display: inline-block;
+        margin: 0;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        background-color: #d6d4d4;
+        line-height: 1;
+    }
+
+.logo-header-div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0 2rem 0;
+}
+    .logo-header-div img {
+        height: 80px;
+        object-fit: contain;
+    }
+
+.explanation-header {
+    margin-top: 2rem;
+}
+
+.select-main {
+    background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    color: #333333;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    appearance: none;
+    position: relative;
+}
+
+    .select-main:focus {
+        outline: none;
+        background: linear-gradient(180deg, #e0e0e0 0%, #cfcfcf 100%);
+        border-color: #999999;
+    }
+
+.list-main {
+    background: #e0e0e0;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    color: #333333;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    list-style: none;
+}
+
+    .list-main li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dddddd;
+    }
+
+        .list-main li:last-child {
+            border-bottom: none;
+        }
+
+.table-main {
+    width: 100%;
+    max-width: 800px;
+    border-collapse: collapse;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    overflow: hidden;
+    box-sizing: border-box;
+    color: #333333;
+    font-size: 0.95rem;
+}
+
+    .table-main th {
+        background: linear-gradient(180deg, #e6e6e6 0%, #d6d6d6 100%);
+        border-bottom: 1px solid #cccccc;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: #222222;
+    }
+
+    .table-main td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #cccccc;
+    }
+
+
+.input-main {
+    background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    color: #333333;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+}
+
+    .input-main::placeholder {
+        color: #aaaaaa;
+    }
+
+    .input-main:focus {
+        background: linear-gradient(180deg, #e0e0e0 0%, #cfcfcf 100%);
+        outline: none;
+    }
+
+
+.btn-link-main {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    color: #333333;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    max-width: 800px;
+}
+
+    .btn-link-main:hover {
+        background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+    }
+
+    .btn-link-main:active {
+        background: linear-gradient(180deg, #d0d0d0 0%, #c0c0c0 100%);
+    }
+
+    .btn-link-main:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.3);
+    }
+
+.btn-main {
+    background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    color: #333333;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    max-width: 400px;
+}
+
+    .btn-main:hover {
+        background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+    }
+
+    .btn-main:active {
+        background: linear-gradient(180deg, #d0d0d0 0%, #c0c0c0 100%);
+    }
+
+    .btn-main:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.3);
+    }
+
+h1 {
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: #d6d4d4;
+    display: inline-block;
+}
+
+    h1:focus {
+        outline: none;
+    }
+
+a, .btn-link {
+    color: #0071c1;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred."
+    }

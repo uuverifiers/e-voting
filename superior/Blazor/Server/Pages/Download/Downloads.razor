@@ -1,0 +1,41 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/downloads"
+@inject NavigationManager Navigation;
+
+<PageTitle>Download</PageTitle>
+
+<!-- Header -->
+<div class="logo-header-div">
+    <h1>
+        Downloads
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" />
+</div>
+
+<div class="listing-div">
+    <button class="btn-main" @onclick="() => NavigateToDownload(VotingSystem.Borda_count)">Borda Count</button>
+    <button class="btn-main" @onclick="() => NavigateToDownload(VotingSystem.Single_transferable_vote)">Single Transferable Vote</button>
+</div>
+
+
+
+@code {
+    private void NavigateToDownload(VotingSystem system)
+    {
+        Navigation.NavigateTo("downloads/" + Help.GetSystemURL(system));
+    }
+}

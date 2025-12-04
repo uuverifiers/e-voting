@@ -1,0 +1,69 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/explanations/borda-count"
+
+<PageTitle>Explanation</PageTitle>
+
+<!-- Header -->
+<div class="logo-header-div">
+    <h1>
+        Borda Count
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" /> 
+</div>
+
+<div class="main-page-div">
+    <!-- Introduction -->
+    <h3>How does it work?</h3>
+    <p>
+        In the <strong>Borda Count</strong>, each voter ranks all candidates in order of preference. Points are assigned based on these rankings: if there are n candidates, the first-ranked candidate receives n-1 points, the second-ranked candidate n-2 points, and so on, down to 0 points for the last place. After all ballots are collected, the points for each candidate are summed up, and the candidate with the highest total score wins.
+    </p>
+    <br>
+    <br />
+
+    <!-- Baldwin's Tie Breaker -->
+    <h3>Baldwin's Tie Breaker</h3>
+    <p>
+        Sometimes, two or more candidates may end up with the same number of points. In this case, our system offers an <strong>optional modified Baldwin's method</strong> as a tie-breaker. This method eliminates the lowest-scoring candidates step by step until the tie is resolved. The tie depth parameter determines how many top ranks must remain completely free of ties. If the tie-breaker is not enabled, ties are simply reported in the results.
+    </p>
+    <br>
+    <br />
+
+    <!-- When to use -->
+    <h3>When to use Borda Count?</h3>
+    <p>
+        The <strong>Borda Count</strong> is well suited for elections with a small to medium number of candidates, where it is important to take all preferences of the voters into account rather than just their first choice. It favors broadly acceptable candidates with strong overall support, rather than those who may be polarizing. Its main advantage is that it <strong>reflects the entire ranking</strong> provided by voters, ensuring that lower preferences also influence the outcome and that consensus candidates are more likely to succeed.
+    </p>
+    <br>
+    <br />
+
+    <!-- Formal Verification -->
+    <h3>Formal Verification</h3>
+    <p>
+        By formally verifying the <strong>Borda Count</strong> algorithm in Dafny, we can guarantee that the point calculation, ranking aggregation, and optional tie-breaking mechanism are carried out exactly as specified. This eliminates the risk of programming errors affecting the election outcome and ensures that the winner always corresponds to the rules defined in advance.
+    </p>
+    <br>
+    <br />
+
+    <!-- Download -->
+    <a class="btn-link-main" style="max-width:200px" href="downloads/borda-count">
+        Download Algorithm
+    </a>
+    <br>
+    <br />
+</div>
+
+

@@ -1,0 +1,59 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/explanations/stv"
+
+<PageTitle>Explanation</PageTitle>
+
+<!-- Header -->
+<div class="logo-header-div">
+    <h1>
+        Single Transferable Vote
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" /> 
+</div>
+
+<div class="main-page-div">
+    <!-- Introduction -->
+    <h3>How does it work?</h3>
+    <p>
+        The <strong>Single Transferable Vote (STV)</strong> is a ranked-choice voting method used to fill multiple seats fairly. Voters rank candidates in order of preference. A quota is calculated, which is the number of votes a candidate needs to be elected. Candidates who reach the quota are elected. If a candidate receives more votes than needed, their surplus votes are redistributed to the remaining candidates according to the next preferences on the ballots. This redistribution uses <strong>Gregory's method</strong>, which transfers all ballots at a reduced fractional value, ensuring fairness. If no candidate meets the quota, the one with the fewest votes is eliminated, and their votes are transferred to the next preferences. This process continues until all seats are filled.
+    </p>
+    <br>
+    <br />
+
+    <!-- When to use -->
+    <h3>When to use STV?</h3>
+    <p>
+        <strong>STV</strong> is best suited for elections where multiple seats need to be allocated, such as in committees, councils, or representative bodies. It ensures that groups of voters with similar preferences are proportionally represented, even if they are not part of the majority. Its main advantage is <strong>fairness and inclusiveness</strong>: minority voices are less likely to be excluded, and the overall outcome reflects the diversity of preferences within the electorate.
+    </p>
+    <br>
+    <br />
+
+    <!-- Formal Verification -->
+    <h3>Formal Verification</h3>
+    <p>
+        <strong>STV</strong> involves more complex calculations, especially when handling fractional vote transfers and surplus redistributions. Formal verification ensures that every step of the process - from calculating quotas to transferring fractions of votes - is implemented correctly. This provides voters with confidence that no mistakes or ambiguities occur in the counting process and that the final allocation of seats precisely matches the formal rules.
+    </p>
+    <br>
+    <br />
+
+    <!-- Download -->
+    <a class="btn-link-main" style="max-width:200px" href="downloads/stv">
+        Download Algorithm
+    </a>
+    <br>
+    <br />
+</div>

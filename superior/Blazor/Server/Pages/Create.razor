@@ -1,0 +1,415 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@using E_Voting.Transfer
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Text.RegularExpressions
+@inject IJSRuntime JS
+@page "/create"
+
+<PageTitle>Create</PageTitle>
+
+<h1>
+    Create new Election
+</h1>
+<br>
+<br />
+
+<!-- name -->
+<h3>Name your election:</h3>
+<input class="input-main" @bind="election_name" maxlength="@max_name_length" />
+<br>
+<br />
+
+<!-- description -->
+<h3>Add a description:</h3>
+<input class="input-main" @bind="description" maxlength="@max_description_length" />
+<br>
+<br />
+
+<!-- choose system -->
+<h3>Choose a system:</h3>
+<div style="display: flex; align-items: stretch; gap: 0.5rem; max-width: 400px; margin-bottom: 0.5rem">
+    <select class="select-main" @bind="selectedSystem" style="flex: 1;">
+        @foreach (VotingSystem system in Enum.GetValues(typeof(VotingSystem)))
+        {
+            string name = Help.GetSystemName(system);
+            <option value="@system">@name</option>
+        }
+    </select>
+    <button class="btn-main" onclick="window.open('explanations/@Help.GetSystemURL(selectedSystem)', '_blank')">Explanation</button>
+</div>
+<div style="display: flex; align-items: center; gap: 0.5rem; max-width: 400px;">
+    <input class="input-main" style="max-width: 100px;" @bind="parameter" />
+    @if (selectedSystem == VotingSystem.Borda_count)
+    {
+        <p style="margin: 0;">Number of tie breakers</p>
+    }
+    @if (selectedSystem == VotingSystem.Single_transferable_vote)
+    {
+        <p style="margin: 0;">Number of seats</p>
+    }
+</div>
+<br>
+<br />
+
+<!-- dates -->
+<h3>Set election end date:</h3>
+@if(browserTimeZone != String.Empty)
+{
+    <p>(@browserTimeZone +@browserTimeZoneOffset hour/s)</p>
+}
+else
+{
+    <p>⠀</p> <!-- watch out, invisible char (U+2800) -->
+}
+<div style="display: flex; gap: 20px; align-items: center;">
+    <input style="max-width: 200px" class="input-main" type="date" @bind="endDate" />
+    <input style="max-width: 100px" class="input-main" type="time" @bind="endTime" />
+</div>
+<br>
+<br />
+<div class="checkbox-container">
+    <h5>Make election private:</h5>
+    <input class="main-checkbox" type="checkbox" @bind="private_election" />
+</div>
+@if(private_election)
+{
+    <div class="checkbox-container">
+        <h5>End when all votes are cast:</h5>
+        <input class="main-checkbox" type="checkbox" @bind="end_when_all_voted" />
+    </div>
+}
+<br>
+<br />
+
+<!-- add candidates -->
+<h3>Add a candiate:</h3>
+<div>
+    <input class="input-main" @bind="candidate_name" @bind:event="oninput" @onkeydown="HandleAddCandidate" maxlength="@max_candidate_name_length" />
+    <button class="btn-main" @onclick="AddCandidate">Add</button>
+    @if (candidateMessage != "")
+    {
+        <p style="color: red; font-weight: bold;">@candidateMessage</p>
+    }
+</div>
+<br>
+<br />
+@if (candidates.Any())
+{
+    <ul class="list-main">
+        @foreach (string candidate in candidates)
+        {
+            <li>
+                <strong>
+                    @if(mobile)
+                    {
+                        @Help.CutSize(candidate, 20)
+                    }
+                    else
+                    {
+                        @Help.CutSize(candidate, 40)
+                    }
+                </strong>
+                <button class="btn-main" @onclick="@(() => DeleteCandidate(candidate))">Remove</button>
+            </li>
+        }
+    </ul>
+}
+<br>
+<br />
+
+<!-- add voters -->
+<h3>Add a voter E-Mail:</h3>
+<p>These voters will recieve an E-Mail with a link to the election</p>
+@if(private_election)
+{
+    <p>The election is private, only these voters can vote!</p>
+}
+<div>
+    <input class="input-main" @bind="voter_mail" @bind:event="oninput" @onkeydown="HandleAddVoter" maxlength="@max_mail_length" />
+    <button class="btn-main" @onclick="AddVoter">Add</button>
+    @if (voterMessage != "")
+    {
+        <p style="color: red; font-weight: bold;">@voterMessage</p>
+    }
+</div>
+<br>
+<br />
+@if (voters.Any())
+{
+    <ul class="list-main">
+        @foreach (string voter in voters)
+        {
+            <li>
+                <strong>
+                    @if(mobile)
+                    {
+                        @Help.CutSize(voter, 20)
+                    }
+                    else
+                    {
+                        @Help.CutSize(voter, 40)
+                    }
+                </strong>
+                <button class="btn-main" @onclick="@(() => DeleteVoter(voter))">Remove</button>
+            </li>
+        }
+    </ul>
+}
+<br>
+<br />
+
+<!-- admin mail -->
+<h3>E-Mail address of Election Admin:</h3>
+<p>Please insert a private E-Mail that only you can access</p>
+<input class="input-main" @bind="admin_mail" maxlength="@max_mail_length" />
+<br>
+<br />
+
+<!-- submit -->
+@if (token != "")
+{
+    <p style="color: green; font-weight: bold;">Election created!</p>
+    <p style="color: green; font-weight: bold;">Admin token: @token</p>
+    <p style="color: orange; font-weight: bold;">SAVE THIS TOKEN! You need it to manage your election in the admin tab!</p>
+}
+else
+{
+    <button class="btn-main" @onclick="Submit">Submit</button>
+    <br>
+    <br />
+}
+@if (message != "")
+{
+    <p style="color: red; font-weight: bold;">@message</p>
+}
+else
+{
+    <br>
+    <br /> 
+}
+<br>
+<br />
+
+@code {
+    VotingSystem selectedSystem = VotingSystem.Borda_count;
+    string election_name = "";
+    string candidate_name = "";
+    string voter_mail = "";
+    List<string> candidates = new List<string>();
+    List<string> voters = new List<string>();
+    DateTime endDate = DateTime.UtcNow;
+    DateTime endTime = DateTime.UtcNow;
+    string description = "";
+    bool private_election = false;
+    bool end_when_all_voted = false;
+    string token = "";
+    string message = "";
+    string candidateMessage = "";
+    string voterMessage = "";
+    string parameter = "";
+    string admin_mail = "";
+    string browserTimeZone = String.Empty;
+    int browserTimeZoneOffset = 0;
+    string mail_pattern = @"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}";
+    private bool mobile = true;
+
+    int max_name_length = 255;
+    int max_description_length = 255;
+    int max_candidate_name_length = 255;
+    int max_mail_length = 255;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            browserTimeZone = await JS.InvokeAsync<string>("getBrowserTimeZone");
+            browserTimeZoneOffset = await JS.InvokeAsync<int>("getBrowserUtcOffset");
+            int browserWidth = await JS.InvokeAsync<int>("browserUtils.getWindowWidth");
+            mobile = browserWidth < 800;
+
+            DateTime adjustedTime = endDate.Date.Add(endTime.TimeOfDay);
+            adjustedTime = adjustedTime.AddHours(browserTimeZoneOffset);
+
+            endDate = adjustedTime.Date;
+            endTime = adjustedTime;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleAddCandidate(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            AddCandidate();
+        }
+    }
+
+    private void HandleAddVoter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            AddVoter();
+        }
+    }
+
+    private void AddCandidate()
+    {
+        if (!string.IsNullOrWhiteSpace(candidate_name) && !candidates.Contains(candidate_name) && candidate_name.Length <= max_candidate_name_length)
+        {
+            candidates.Add(candidate_name);
+            candidate_name = "";
+            candidateMessage = "";
+        }
+        else
+        {
+            candidateMessage = "Invalid candidate name!";
+        }
+    }
+
+
+    private void AddVoter()
+    {
+        if (Regex.IsMatch(voter_mail, mail_pattern) && !voters.Contains(voter_mail) && voter_mail.Length <= max_mail_length)
+        {
+            voters.Add(voter_mail);
+            voter_mail = "";
+            voterMessage = "";
+        }
+        else
+        {
+            voterMessage = "Invalid mail address!";
+        }
+    }
+
+    private async Task Submit()
+    {
+        if (candidates.Count <= 1)
+        {
+            message = "Add more candidates!";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(election_name))
+        {
+            message = "Please insert an election name!";
+            return;
+        }
+
+        DateTime date = endDate.Date.Add(endTime.TimeOfDay);
+        date = date.AddHours(-browserTimeZoneOffset);
+        if(date <= DateTime.UtcNow)
+        {
+            message = "Pick a date from the future!";
+        }
+        if(string.IsNullOrWhiteSpace(description))
+        {
+            message = "Please insert a description!";
+            return;
+        }
+        if(end_when_all_voted && voters.Count == 0)
+        {
+            message = "Election ends when all voters have voted. But no voters were registered!";
+            return;
+        }
+        if(private_election && voters.Count == 0)
+        {
+            message = "The election is private. But no voters were registered!";
+            return;
+        }
+        if(parameter.Length > 5)
+        {
+            message = "Parameter value too long!";
+            return;
+        }
+        if(selectedSystem == VotingSystem.Borda_count)
+        {
+            if(!int.TryParse(parameter, out int number) || number < 0)
+            {
+                message = "Please insert a valid number of tie breakers!";
+                return;
+            }
+            if(number > Config.BordaCountMaxTieBreakers)
+            {
+                message = "Maximum tie breakers: " + Config.BordaCountMaxTieBreakers;
+                return;
+            }
+        }
+        if (selectedSystem == VotingSystem.Single_transferable_vote)
+        {
+            if (!int.TryParse(parameter, out int number) || number < 0)
+            {
+                message = "Please insert a valid number of seats";
+                return;
+            }
+            if (number > Config.StvMaxSeats)
+            {
+                message = "Maximum seats: " + Config.StvMaxSeats;
+                return;
+            }
+        }
+        if(string.IsNullOrWhiteSpace(admin_mail) || !Regex.IsMatch(admin_mail, mail_pattern) || admin_mail.Length > max_mail_length)
+        {
+            message = "Please insert a valid admin mail!";
+            return;
+        }
+        if(election_name.Length > max_name_length)
+        {
+            message = "Election name too long!";
+            return;
+        }
+        if(description.Length > max_description_length)
+        {
+            message = "Description too long!";
+            return;
+        }
+
+        long key = Database.AddElection(election_name, description, !private_election, private_election && end_when_all_voted, date, Help.GetTypeID(selectedSystem), admin_mail, parameter, candidates, voters);
+        if (key != -1)
+        {
+            Election? election = Database.GetElection(key, false, PrivacyLevel.Admin);
+            if (election != null)
+            {
+                token = election.AdminToken;
+                message = "";
+
+                await Help.DisplayMessage(JS, "Election created!" + Environment.NewLine + 
+                "Admin Token: " + election.AdminToken + Environment.NewLine +
+                "SAVE THIS TOKEN! You need it to manage your election in the admin tab!");
+
+                Mail.SendVoterInvitations(election);
+                Mail.SendAdminInvitation(election);   
+            }
+            else
+            {
+                message = "DB error!";
+            }
+        }
+        else
+        {
+            message = "DB error!";
+        }
+    }
+
+    private void DeleteCandidate(string name)
+    {
+        candidates.Remove(name);
+    }
+
+    private void DeleteVoter(string name)
+    {
+        voters.Remove(name);
+    }
+}

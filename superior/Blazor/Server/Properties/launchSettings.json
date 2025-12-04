@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "E_Voting": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "superior/home",
+      "applicationUrl": "http://localhost:50052",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

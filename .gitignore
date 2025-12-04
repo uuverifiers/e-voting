@@ -16,3 +16,96 @@ eins/backend/src/proto/proto/*.pb.go
 
 .vscode
 .zed
+
+# --- Superior group ---
+# Log
+**/log.txt
+
+# Environment files
+.env
+.env.*
+
+# IDEs/Editoren
+.vscode/
+.idea/
+*.code-workspace
+
+# --- Dafny ---
+# Alle .dll ignorieren
+*.dll
+# Ausnahmen
+!**/VerifiedSuperiority.dll
+
+*.exe
+*.pdb
+*.out
+*.dfyserverlog
+*.generated.cs
+*.generated.go
+*.generated.js
+*.generated.py
+*.generated.rs
+*.generated.java
+*.class
+*_dafny.py
+*_g.py
+*_g.cs
+*_g.go
+*_g.js
+*_g.rs
+*_g.java
+
+# Dafny verification cache (optional)
+.dafny/
+
+# --- C# / .NET / Blazor ---
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.sdf
+*.cache
+*.dbmdl
+*.pdb
+*.vsp
+*.vspx
+*.vspscc
+*.vssscc
+*.log
+*.tlog
+*.ide
+*.csproj.user
+*.sln.ide
+*.ncb
+*.aps
+*.res
+*.bak
+*.Backup
+*.orig
+
+# ASP.NET / Blazor
+wwwroot/dist/
+wwwroot/node_modules/
+node_modules/
+.env.*
+*.db
+*.sqlite
+appsettings.*.json
+secrets.json
+
+# Visual Studio
+.vs/
+Generated_Code/
+TestResults/
+_ReSharper*/
+*.DotSettings.user
+
+# Rider IDE
+.idea/
+*.sln.iml
+
+# OS-spezifisch
+.DS_Store
+Thumbs.db

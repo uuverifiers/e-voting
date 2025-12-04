@@ -1,0 +1,240 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/result/set"
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+@using E_Voting.Transfer
+@using System.Text.Json
+
+<PageTitle>Results</PageTitle>
+
+@if (election == null)
+{
+    return;
+}
+
+<div id="resultsDiv" >
+    <div class="logo-header-div">
+    <h1>
+        Result
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" />
+</div>
+
+<div class="listing-div">
+    @if (election!.Result == Config.EmptyResult)
+    {
+        @if(election!.End < DateTime.UtcNow)
+        {
+            <p>Calculating result...</p>
+        }
+        else if (browserTimeZone != String.Empty)
+        {
+            <p>Election not finished</p>
+            <p>End time: @election.End.AddHours(browserTimeZoneOffset).ToString("dd.MM.yyyy HH:mm") (@browserTimeZone)</p>     
+        }
+    }
+    else
+    {
+        <h3>@election.Name</h3>
+        <p><strong>Voting System:</strong> @Help.GetSystemName(Help.GetVotingSystem(election.TypeID))</p>
+
+        <table class="table-main" style="max-width:400px">
+            <thead>
+                <tr>
+                    <th>Winners</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (string element in result)
+                {
+                    <tr>
+                        <td>@element</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+</div>
+@if (election!.Result != Config.EmptyResult)
+{
+    <div class="listing-div">
+        <button class="btn-main" @onclick="TakeScreenshot">Save result</button>
+    </div>
+}
+<br>
+<br />
+
+@code{
+    @code {
+        [Parameter]
+        [SupplyParameterFromQuery]
+        public string ElectionID { get; set; } = "";
+
+        [Parameter]
+        [SupplyParameterFromQuery]
+        public string Token { get; set; } = "";
+
+        private Voter? voter;
+        private Election? election;
+        private List<string> result = new();
+        private string browserTimeZone = String.Empty;
+        private int browserTimeZoneOffset = 0;
+
+        private async Task TakeScreenshot()
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("takeScreenshot");   
+            }
+            catch(Exception e)
+            {
+                Log.Write("Taking screenshot failed: " + e.Message);
+            }
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                browserTimeZone = await JS.InvokeAsync<string>("getBrowserTimeZone");
+                browserTimeZoneOffset = await JS.InvokeAsync<int>("getBrowserUtcOffset");
+                StateHasChanged();
+            }
+        }
+
+        protected override void OnInitialized()
+        {
+            if (string.IsNullOrEmpty(Token))
+            {
+                NavManager.NavigateTo(Routes.InvalidRequest);
+                return;
+            }
+            if (string.IsNullOrEmpty(ElectionID))
+            {
+                NavManager.NavigateTo(Routes.InvalidRequest);
+                return;
+            }
+            if (!long.TryParse(ElectionID, out long id))
+            {
+                NavManager.NavigateTo(Routes.InvalidRequest);
+                return;
+            }
+
+            if (Token == "public")
+            {
+                election = Database.GetElection(id, false, PrivacyLevel.Voters);
+                if (election != null && election.PublicElection)
+                {
+                    if (election.Result != Config.EmptyResult)
+                    {
+                        VotingSystem system = Help.GetVotingSystem(election.TypeID);
+                        if (!Help.IsSetResultElection(system))
+                        {
+                            election = null;
+                            NavManager.NavigateTo(Routes.InvalidRequest);
+                            return;
+                        }
+                        LoadResult();
+                        return;
+                    }
+                    return;
+                }
+                else
+                {
+                    election = null;
+                    NavManager.NavigateTo(Routes.InvalidRequest);
+                    return;
+                }
+            }
+            else
+            {
+                if (Token.Length == Config.VoterTokenLength)
+                {
+                    voter = Database.CheckToken(Token);
+                    if (voter != null && voter.ElectionID == id)
+                    {
+                        election = Database.GetElection(id, false, PrivacyLevel.Voters);
+                        if (election == null)
+                        {
+                            voter = null;
+                            NavManager.NavigateTo(Routes.InvalidToken);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        voter = null;
+                        NavManager.NavigateTo(Routes.InvalidToken);
+                        return;
+                    }
+                }
+                else if (Token.Length == Config.AdminTokenLength)
+                {
+                    election = Database.CheckAdminToken(Token);
+                    if (election == null)
+                    {
+                        NavManager.NavigateTo(Routes.InvalidToken);
+                        return;
+                    }
+                    if (election.ID != id)
+                    {
+                        election = null;
+                        NavManager.NavigateTo(Routes.InvalidToken);
+                        return;
+                    }
+                }
+                else
+                {
+                    NavManager.NavigateTo(Routes.InvalidToken);
+                    return;
+                }
+
+                if (election.Result != Config.EmptyResult)
+                {
+                    VotingSystem system = Help.GetVotingSystem(election.TypeID);
+                    if (!Help.IsSetResultElection(system))
+                    {
+                        election = null;
+                        NavManager.NavigateTo(Routes.ServerError);
+                        return;
+                    }
+                    LoadResult();
+                    return;
+                }
+            }
+        }
+
+        private void LoadResult()
+        {
+            List<long>? resultData = JsonSerializer.Deserialize<List<long>>(election!.Result);
+            if (resultData != null)
+            {
+                foreach (var entry in resultData)
+                {
+                    foreach (Candidate candidate in election.Candidates)
+                    {
+                        if (candidate.ID == entry)
+                        {
+                            result.Add(candidate.Name);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

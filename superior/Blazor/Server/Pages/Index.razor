@@ -1,0 +1,48 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/home"
+@page "/"
+@inject NavigationManager Navigation;
+
+<PageTitle>Home</PageTitle>
+
+<!-- Header -->
+<div class="logo-header-div">
+    <h1>
+        Vote formally verified today!
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" />
+</div>
+
+<div class="main-page-div">
+    <p>
+        Formally verified algorithms are computer programs that have been mathematically proven to work correctly according to a rigorous specification. Unlike ordinary software, their correctness is guaranteed, which is crucial for applications where errors could have serious consequences.
+    </p>
+    <p>
+        Elections are one such application. Using formally verified algorithms ensures that your voting process is secure, tamper-proof, and transparent. Voters can trust that their votes are counted correctly and that the results reflect the true outcome.
+    </p>
+    <p>
+        The <strong>University of Regensburg</strong> offers a secure online election service using these formally verified algorithms. Whether for student council elections, club votes, or research purposes, our system allows you to run a reliable election entirely online.
+    </p>
+    <button class="btn-main" style="max-width: 200px" @onclick="() => NavigateToDownload()">Download Algorithms</button>
+</div>
+
+@code {
+    private void NavigateToDownload()
+    {
+        Navigation.NavigateTo("downloads");
+    }
+}

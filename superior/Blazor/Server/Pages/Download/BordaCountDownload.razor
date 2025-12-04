@@ -1,0 +1,66 @@
+﻿@*
+Formally verified E-Voting using Dafny
+Copyright (C) 2025 Authors Superior Group
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>. 
+*@
+
+@page "/downloads/borda-count"
+@inject IWebHostEnvironment Env
+
+<PageTitle>Download</PageTitle>
+
+<!-- Header -->
+<div class="logo-header-div">
+    <h1>
+        Downloads
+    </h1>
+    <img src="logo.png" alt="Superior Voting Logo" />
+</div>
+
+<div class="listing-div">
+    <h3>ZIP Archive</h3>
+    <a class="btn-link-main" style="max-width:400px" href="Downloads/BordaCount/BordaCount.zip" download>BordaCount.zip</a>
+</div>
+
+<div class="listing-div">
+    <h3>Single Files</h3>
+    @foreach (var file in files)
+    {
+        <a class="btn-link-main" style="max-width:400px" href="@file.Item1" download>@file.Item2</a>
+    }
+</div>
+<br>
+<br />
+
+@code {
+    private List<Tuple<string, string>> files = new();
+
+    protected override void OnInitialized()
+    {
+        var path = Path.Combine(Env.WebRootPath, "Downloads", "BordaCount");
+
+        if (Directory.Exists(path))
+        {
+            DirectoryInfo info = new DirectoryInfo(path);
+            foreach (FileInfo file in info.GetFiles())
+            {
+                if (file.Extension != ".dfy")
+                {
+                    continue;
+                }
+
+                var url = $"Downloads/BordaCount/{file.Name}";
+                files.Add(new Tuple<string, string>(url, file.Name));
+            }
+        }
+    }
+}
