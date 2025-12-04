@@ -1,5 +1,3 @@
-# formally-verified-evoting_blazor_app_group_superior
-
 ## What is this project?
 Our project provides a secure online election platform built on formally verified algorithms. 
 These are programs that have been proven to function correctly according to rigorous specifications, ensuring that every election outcome is accurate and trustworthy.
@@ -8,6 +6,8 @@ The **Dafny** code can be found in the wwwroot/Downloads folder.
 The system is delivered as a **Blazor Server application**, providing a responsive and interactive web interface for voters.
 We host the application using **NGINX**, which handles HTTPS connections to ensure secure and encrypted communication between voters and the server. 
 This combination of formally verified algorithms, modern web technology, and secure hosting makes our platform a reliable choice for online elections.
+
+Link to the original repository: https://github.com/Hobac/formally-verified-evoting_blazor_app_group_superior
 
 ## Setup
 Follow these step-by-step instructions to get the project running:
